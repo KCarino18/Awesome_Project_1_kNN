@@ -1,3 +1,4 @@
+# 2/2/21 KNN model of different wheat seeds
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from matplotlib import cm
@@ -7,16 +8,20 @@ from mpl_toolkits.mplot3d import axes3d   # must keep
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 
+#reading in the seeds data set and spliting it into training sets
 seeds = pd.read_csv('seeds_dataset.csv')
 seedNames = dict(zip(seeds.seedType.unique(),[ "Kama", "Rosa", "Canadian"]))
 print(seedNames)
+
 X = seeds[["area","perimeter","compactness","lengthOfKernel","widthOfKernel","asymmetryCoefficient",]]
 y = seeds["seedType"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
+#2D plot or scatter plot
 cmap = cm.get_cmap('gnuplot')
 scatter = scatter_matrix(X_train, c= y_train, marker = 'o', s=40, hist_kwds={'bins':15}, figsize=(9,9), cmap=cmap)
 
+#3D plot
 fig = plt.figure()
 ax = fig.add_subplot(111, projection = '3d')
 ax.scatter(X_train['area'], X_train['asymmetryCoefficient'], X_train['compactness'], c = y_train, marker = '$f$', s=100)
@@ -25,18 +30,20 @@ ax.set_ylabel('asymmetryCoefficient')
 ax.set_zlabel('compactness')
 plt.show()
 
+#kNN set up
 knn = KNeighborsClassifier(n_neighbors = 5, weights = 'distance')
-
 knn.fit(X_train, y_train)
-
 knn.score(X_test, y_test)
 
+#Showing accuracy according to n_neighnors
 k_range = range(1, 20)
 scores = []
 for k in k_range:
     knn = KNeighborsClassifier(n_neighbors = k, weights = 'distance')
     knn.fit(X_train, y_train)
     scores.append(knn.score(X_test, y_test))
+
+#Plotting
 plt.figure()
 plt.xlabel('k')
 plt.ylabel('accuracy')
@@ -44,6 +51,7 @@ plt.scatter(k_range, scores)
 plt.xticks([0, 5, 10, 15, 20])
 plt.show()
 
+#Showing the training set proportion
 t = [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
 knn = KNeighborsClassifier(n_neighbors=5, weights = 'distance')
 plt.figure()
@@ -54,7 +62,7 @@ for s in t:
         knn.fit(X_train, y_train)
         scores.append(knn.score(X_test, y_test))
     plt.plot(s, np.mean(scores), 'bo')
-
+#Showing plots
 plt.xlabel('Training set proportion (%)')
 plt.ylabel('accuracy')
 plt.show()

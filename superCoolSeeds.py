@@ -10,7 +10,6 @@ import numpy as np
 #reading in the seeds data set and spliting it into training sets
 seeds = pd.read_csv('seeds_dataset.csv')
 seedNames = dict(zip(seeds.seedType.unique(),[ "Kama", "Rosa", "Canadian"]))
-print(seedNames)
 
 X = seeds[["area","perimeter","compactness","lengthOfKernel","widthOfKernel","asymmetryCoefficient",]]
 y = seeds["seedType"]
@@ -38,6 +37,23 @@ plt.show()
 knn = KNeighborsClassifier(n_neighbors = 5, weights = 'distance', metric = 'minkowski', p = 2)
     #When minkowski has p set as 2, this is equivilant to euclidian distance
 knn.fit(X_train, y_train)
+actual = [0,0,0]
+predict = [0,0,0]
+index = X_test.index
+number_of_rows = len(index)
+for i in range(0,number_of_rows-1):
+    thisTest = X_test.iloc[[i]].values
+    predict[knn.predict(thisTest)[0]-1]+=1
+    actual[y_test.iloc[[i]].values[0]-1]+=1
+    # actual[y_test.iloc(i)[0]-1] += 1
+    # print(i)
+print("Predicted:")
+for i in range(3):
+    print(seedNames[i+1], predict[i])
+print("\nActual:")
+for i in range(3):
+    print(seedNames[i+1], actual[i])
+
 knn.score(X_test, y_test)
 
 #Showing accuracy according to n_neighnors

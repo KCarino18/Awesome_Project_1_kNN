@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d   # must keep
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
-
 #reading in the seeds data set and spliting it into training sets
 seeds = pd.read_csv('seeds_dataset.csv')
 seedNames = dict(zip(seeds.seedType.unique(),[ "Kama", "Rosa", "Canadian"]))
@@ -15,7 +14,12 @@ print(seedNames)
 
 X = seeds[["area","perimeter","compactness","lengthOfKernel","widthOfKernel","asymmetryCoefficient",]]
 y = seeds["seedType"]
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+    # there are 70 of each class, Kama, Rosa and Canadian for a total of 3 classes
+    # with equal class distrobution
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size = .25, train_size = .75)
+    # We are partitioning the data here so that the test size is 25% of the data and the training size
+    # is 75% of the data. This gives us a decent test group with enough data to get
+    #  reliable statistics on accuracy.
 
 #2D plot or scatter plot
 cmap = cm.get_cmap('gnuplot')
@@ -31,7 +35,8 @@ ax.set_zlabel('compactness')
 plt.show()
 
 #kNN set up
-knn = KNeighborsClassifier(n_neighbors = 5, weights = 'distance')
+knn = KNeighborsClassifier(n_neighbors = 5, weights = 'distance', metric = 'minkowski', p = 2)
+    #When minkowski has p set as 2, this is equivilant to euclidian distance
 knn.fit(X_train, y_train)
 knn.score(X_test, y_test)
 
@@ -39,7 +44,7 @@ knn.score(X_test, y_test)
 k_range = range(1, 20)
 scores = []
 for k in k_range:
-    knn = KNeighborsClassifier(n_neighbors = k, weights = 'distance')
+    knn = KNeighborsClassifier(n_neighbors = k, weights = 'distance', metric = 'minkowski', p = 2)
     knn.fit(X_train, y_train)
     scores.append(knn.score(X_test, y_test))
 
@@ -53,7 +58,7 @@ plt.show()
 
 #Showing the training set proportion
 t = [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
-knn = KNeighborsClassifier(n_neighbors=5, weights = 'distance')
+knn = KNeighborsClassifier(n_neighbors=5, weights = 'distance', metric = 'minkowski', p = 2)
 plt.figure()
 for s in t:
     scores = []
@@ -66,3 +71,4 @@ for s in t:
 plt.xlabel('Training set proportion (%)')
 plt.ylabel('accuracy')
 plt.show()
+#...
